@@ -5,10 +5,10 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     // 적 프리팹 연결
-    public EnemyMovement enemyPrefab;
+    public GameObject enemyPrefab;
 
     // 적 담는 리스트
-    public List<EnemyMovement> enemies = new List<EnemyMovement>();
+    public List<GameObject> enemies = new List<GameObject>();
 
     // 저장된 적 위치 받아오기
     EnemyPositionCtrl enemyPosCtrl;
@@ -40,11 +40,11 @@ public class EnemySpawner : MonoBehaviour
     private void CreateEnemy(int index)
     {
         // 적 프리팹 생성
-        EnemyMovement enemy = Instantiate(enemyPrefab,
+        GameObject enemy = Instantiate(enemyPrefab,
             new Vector3(enemyPositions[index].xStart, 0f, enemyPositions[index].zStart),
             Quaternion.identity);
 
         // 위치 잡아주기
-        enemy.SetUp(enemyPositions[index].xStart, enemyPositions[index].zStart, enemyPositions[index].xEnd, enemyPositions[index].zEnd);
+        enemy.GetComponent<EnemyMovement>().SetUp(enemyPositions[index].xStart, enemyPositions[index].zStart, enemyPositions[index].xEnd, enemyPositions[index].zEnd);
     }
 }

@@ -6,10 +6,10 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    //CameraCtrl m_CamCtrl;
     //PlayerMove m_playerMove;
 
     public WayPoint m_WayPoint;
+    public GameObject m_Camera;
 
 	private void Awake()
 	{
@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
 		}
 
+        m_Camera = GameObject.Find("Camera");
         m_WayPoint = GetComponent<WayPoint>();
 
     }
