@@ -19,7 +19,7 @@ public class CameraCtrl : MonoBehaviour
 
 
     private float m_CamSpeed = 10f;
-    private float m_CamZoomSpeed = 20f;
+    //private float m_CamZoomSpeed = 20f;
     private float m_CamMax = 20f;
     private float m_CamMin;
 
@@ -48,9 +48,9 @@ public class CameraCtrl : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
     {
-       
         m_Cam.focalLength = 20f;
         dist = Vector3.Distance(m_Cam.transform.position, m_Targets[index].transform.position);
+        targetFocalLength = dist * 4f;
     }
 
     // Update is called once per frame
@@ -68,9 +68,9 @@ public class CameraCtrl : MonoBehaviour
                 {
                     //m_Targets[index].SetActive(false);
                     index++;
-                    dist = Vector3.Distance(m_Cam.transform.position, m_Targets[index].transform.position);
+                  
 
-                    targetFocalLength = dist * 4f;
+                   
                     isZoom = true;
                 }
             }
@@ -151,6 +151,19 @@ public class CameraCtrl : MonoBehaviour
         else
 		{
             Debug.Log("타겟이 없어요...");
+		}
+	}
+
+    public void EnemyHit(bool isHit)
+	{
+        if(isHit)
+		{
+            m_Targets[index].SetActive(false);
+            m_EnemyMovemrnts[index].Die();
+            //index++;
+            m_Targets.RemoveAt(index);
+            dist = Vector3.Distance(m_Cam.transform.position, m_Targets[index].transform.position);
+            targetFocalLength = dist * 4f;
 		}
 	}
 

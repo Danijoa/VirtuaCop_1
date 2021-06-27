@@ -14,6 +14,9 @@ public struct PositionData
     // 도착 위치
     public float xEnd;
     public float zEnd;
+
+    // y 위치
+    public float yPos;
 }
 
 public class EnemyPositionCtrl : MonoBehaviour
@@ -49,10 +52,11 @@ public class EnemyPositionCtrl : MonoBehaviour
                     case 1: data.zStart = float.Parse(word); break;
                     case 2: data.xEnd = float.Parse(word); break;
                     case 3: data.zEnd = float.Parse(word); break;
+                    case 4: data.yPos = float.Parse(word); break;
                 }
                 index++;
 
-                if (index >= 4)
+                if (index >= 5)
                 {
                     enemyPositionDatas.Add(data);
                     break;

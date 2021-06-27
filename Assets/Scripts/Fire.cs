@@ -12,15 +12,23 @@ public class Fire : MonoBehaviour
     public GameObject bullet;
     public GameObject effectobj;
     public GameObject text;
+    private CameraCtrl m_Cam;
 
     Image image;
 
     public bool fire = false;
     public bool reload = false;
+    public bool isEnemy = false;
     public int bullet_cnt = 6;
 
-    // Start is called before the first frame update
-    void Start()
+	private void Awake()
+	{
+
+        m_Cam = GameObject.Find("Camera").GetComponent<CameraCtrl>();
+
+    }
+	// Start is called before the first frame update
+	void Start()
     {
         bullet = GameObject.Find("Bullet");
         animt = bullet.GetComponent<Animator>();
@@ -30,6 +38,22 @@ public class Fire : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            RaycastHit m_Hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out m_Hit, Mathf.Infinity))
+            {
+                if (m_Hit.collider.gameObject.tag == "Enemy")
+                {
+                    Debug.Log("애너미 마졌어");
+                    isEnemy = true;
+                    m_Cam.EnemyHit(isEnemy);
+                }
+            }
+        }
+
         Vector2 mousePos = Input.mousePosition;
 
         animt.SetBool("Reload", reload);

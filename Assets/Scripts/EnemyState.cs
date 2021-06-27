@@ -11,7 +11,7 @@ public class EnemyState : MonoBehaviour
 
     private void Awake()
     {
-        state = 1;// Random.Range(0, 2); // 0~1
+        state = 0;// Random.Range(0, 2); // 0~1
     }
 
     // Start is called before the first frame update

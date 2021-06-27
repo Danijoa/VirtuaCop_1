@@ -30,7 +30,7 @@ public class EnemySpawner : MonoBehaviour
 
     void Update()
     {
-        if (index < 3)
+        if (index < 15)
         {
             CreateEnemy(index);
             index++;
@@ -45,6 +45,6 @@ public class EnemySpawner : MonoBehaviour
             Quaternion.identity);
 
         // 위치 잡아주기
-        enemy.GetComponent<EnemyMovement>().SetUp(enemyPositions[index].xStart, enemyPositions[index].zStart, enemyPositions[index].xEnd, enemyPositions[index].zEnd);
+        enemy.GetComponent<EnemyMovement>().SetUp(enemyPositions[index].xStart, enemyPositions[index].zStart, enemyPositions[index].xEnd, enemyPositions[index].zEnd, enemyPositions[index].yPos);
     }
 }

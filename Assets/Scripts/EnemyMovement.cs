@@ -14,9 +14,10 @@ public class EnemyMovement : MonoBehaviour
     // Component
     Rigidbody myRigid;
 
-    // 카메라, 플레이어 위치 받아오기
+    // 카메라, 플레이어, 총 위치 받아오기
     Transform playerPos;
     Transform cameraPos;
+    Transform gunPos;
 
     // 카메라 제어
     private CameraCtrl cameraCtrl;
@@ -39,16 +40,31 @@ public class EnemyMovement : MonoBehaviour
         state = State.Move;
     }
 
-    public void SetUp(float xS, float zS, float xE, float zE)
+    public void SetUp(float xS, float zS, float xE, float zE, float yP)
     {
         playerPos = GameObject.Find("Player").GetComponent<Transform>();
         cameraCtrl = GameManager.instance.m_Camera.GetComponent<CameraCtrl>();
 
-        // 적 생성 위치
-        transform.position = new Vector3(xS, playerPos.position.y, zS);
+        if (yP != 0)
+        {
+            // 적 생성 위치
+            transform.position = new Vector3(xS, playerPos.position.y + yP, zS);
 
-        // 적 도착 위치
-        targetPos = new Vector3(xE, playerPos.position.y, zE);
+            // 적 도착 위치
+            targetPos = new Vector3(xE, playerPos.position.y + yP, zE);
+        }
+        else
+        {
+            transform.position = new Vector3(xS, playerPos.position.y, zS);
+
+            targetPos = new Vector3(xE, playerPos.position.y, zE);
+        }
+
+        if (enemyState.state == 0)
+        {
+            gunPos = GameObject.Find("Gun").GetComponent<Transform>();
+            gunPos.position = new Vector3(gunPos.position.x, gunPos.position.y - 0.45f, gunPos.position.z);
+        }
     }
 
     private void Start()
@@ -65,8 +81,7 @@ public class EnemyMovement : MonoBehaviour
         // 적이 죽으면
         if (enemyState.isDie == true)
         {
-            enemyState.shoot = false;
-            state = State.Die;
+            Die();
         }
 
     }
@@ -76,7 +91,7 @@ public class EnemyMovement : MonoBehaviour
         {
             // 적이 타겟지점에 도착하면 break
             float checkDist = Vector3.Distance(targetPos, transform.position);
-            if (checkDist <= 2f)
+            if (checkDist <= 1.5f)
             {
                 // 배틀 상태로 변경 후
                 state = State.Battle;
@@ -122,5 +137,12 @@ public class EnemyMovement : MonoBehaviour
 
         // 이동
         transform.position += moveDir * bodyguardSpeed * Time.deltaTime;
+    }
+
+    public void Die()
+	{
+        enemyState.shoot = false;
+        gameObject.SetActive(false);
+        state = State.Die;
     }
 }
