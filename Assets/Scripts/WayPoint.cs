@@ -29,7 +29,6 @@ public class WayPoint : MonoBehaviour
 		//{
         //    //m_transform[i].position = new Vector3(points[i].x, points[i].y, points[i].z);
         //}
-       
 	}
 
 	// Update is called once per frame

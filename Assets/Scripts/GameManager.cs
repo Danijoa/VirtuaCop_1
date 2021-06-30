@@ -10,6 +10,9 @@ public class GameManager : MonoBehaviour
 
     public WayPoint m_WayPoint;
     public GameObject m_Camera;
+    public PlayerMove m_PlayerMove;
+
+    public int totalScore = 0;
 
 	private void Awake()
 	{
@@ -25,6 +28,7 @@ public class GameManager : MonoBehaviour
 
         m_Camera = GameObject.Find("Camera");
         m_WayPoint = GetComponent<WayPoint>();
+        m_PlayerMove = GameObject.Find("Player").GetComponent<PlayerMove>();
 
     }
 

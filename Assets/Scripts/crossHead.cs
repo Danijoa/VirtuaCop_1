@@ -23,12 +23,12 @@ public class crossHead : MonoBehaviour
         Vector2 mousePos = Input.mousePosition;
         cursor.anchoredPosition = new Vector2(mousePos.x - 20, mousePos.y - 20);
 
-        if (Input.GetKeyDown("f"))
+        if (Input.GetMouseButtonDown(0))
         {
             image.sprite = Resources.Load<Sprite>("11");
         }
 
-        if (Input.GetKeyUp("f"))
+        if (Input.GetMouseButtonUp(0))
         {
             image.sprite = Resources.Load<Sprite>("30");
         }

@@ -7,29 +7,31 @@ public class CameraCtrl : MonoBehaviour
     [SerializeField]
     Camera m_Cam;
     [SerializeField]
-    GameObject player;
-    [SerializeField]
     GameObject canterObj;
+    [SerializeField]
+    PlayerInformation m_PlayerInfo;
     
-    List<GameObject> m_Targets = new List<GameObject>();
+    public List<GameObject> m_Targets = new List<GameObject>();
 
-    List<EnemyMovement> m_EnemyMovemrnts = new List<EnemyMovement>();
+    public List<EnemyMovement> m_EnemyMovemrnts = new List<EnemyMovement>();
+    public List<HelpMovement> m_HelpMovements = new List<HelpMovement>();
     //[SerializeField] 
     //GameObject pivot;
 
 
-    private float m_CamSpeed = 10f;
-    //private float m_CamZoomSpeed = 20f;
+    private float m_CamSpeed = 60f;
     private float m_CamMax = 20f;
     private float m_CamMin;
 
     private float dist;
     private float targetFocalLength;
     private bool isZoom = false;
+    private bool isDestroy = false;
+    private float timer = 0f;
     //private float m_CamPreviousLocation = 0f;
     //private float time;
 
-    public int index { get; private set; }
+    public int index { get; set; }
 
 	private void Awake()
 	{
@@ -42,57 +44,73 @@ public class CameraCtrl : MonoBehaviour
         //player = GameObject.FindGameObjectsWithTag("Player");
 
         //자식 오브젝트에서 부모 오브젝트를 가져올때
-        player = transform.parent.gameObject;
+        m_PlayerInfo = transform.parent.gameObject.GetComponent<PlayerInformation>();
         index = 0;
     }
 	// Start is called before the first frame update
 	void Start()
     {
-        m_Cam.focalLength = 20f;
-        dist = Vector3.Distance(m_Cam.transform.position, m_Targets[index].transform.position);
-        targetFocalLength = dist * 4f;
+        m_Cam.focalLength = m_CamMax;
+        
     }
 
     // Update is called once per frame
     void Update()
     {
         m_Cam.transform.position = (canterObj.transform.position + new Vector3(0.5f, 1.5f, 0.5f));
-       
-        if (m_Targets != null)
+
+        if(m_Targets.Count != 0)
         {
-            TargetRotate();
+            if(m_Targets[index].tag == "Help")
+			{
+                dist = Vector3.Distance(m_Cam.transform.position, m_Targets[index].transform.position);
+                targetFocalLength = dist * 4f;
 
-            if (Input.GetMouseButtonDown(0))
-            {
-                if (m_Targets.Count - 1 > index)
-                {
-                    //m_Targets[index].SetActive(false);
-                    index++;
-                  
+                isZoom = true;
+                TargetRotate();
 
-                   
-                    isZoom = true;
+                timer += Time.deltaTime;
+
+                if (timer>=1.0f)
+				{
+                    DestroyTarget();
                 }
+
             }
 
-            if (Input.GetMouseButtonDown(1))
-            {
-                if (0 < index)
-                {
-                    //m_Targets[index].SetActive(false);
-                    index--;
-                    dist = Vector3.Distance(m_Cam.transform.position, m_Targets[index].transform.position);
+            else
+			{
 
-                    targetFocalLength = dist * 4f;
-                    isZoom = true;
-                }
+                if(timer > 0)
+				{
+                    timer = 0;
+				}
+
+                dist = Vector3.Distance(m_Cam.transform.position, m_Targets[index].transform.position);
+                targetFocalLength = dist * 4f;
+
+                isZoom = true;
+                TargetRotate();
             }
+
+        }
+        else
+        {
+            PivotRotate();
         }
 
-      
-    }
 
-    private void ZoomIn()
+		//TrueForAll()함수는 모든 요소가 조건에 맞으면 true로 불값을 리턴해주는 함수
+		if (m_EnemyMovemrnts.TrueForAll(x => x.state == EnemyMovement.State.Die))
+        {
+            if (m_Targets.Count == 0 && m_PlayerInfo.state != PlayerInformation.State.Die)
+			{
+                m_PlayerInfo.isMove = true;
+            }
+        }
+	}
+
+	private void ZoomIn()
 	{
         if (isZoom == false) return;
 
@@ -110,34 +128,33 @@ public class CameraCtrl : MonoBehaviour
     private void ZoomOut()
 	{
         //cam.transform.rotation = Quaternion.Lerp(target.transform.rotation, pivot.transform.rotation, m_CamSpeed);
-        m_Cam.focalLength = m_Cam.focalLength - (Time.deltaTime * m_CamSpeed);
+        if(m_Cam.focalLength > m_CamMax)
+		{
+            m_Cam.focalLength = m_Cam.focalLength - (Time.deltaTime * m_CamSpeed);
 
-        if (m_Cam.fieldOfView >= m_CamMax)
-        {
-            m_Cam.fieldOfView = m_CamMax;
+            if (m_Cam.focalLength <= m_CamMax)
+            {
+                m_Cam.focalLength = m_CamMax;
+            }
         }
+        
     }
 
     private void TargetRotate()
 	{ 
-        if(m_EnemyMovemrnts[index].state == EnemyMovement.State.Battle)
-		{
-            // (dic > 1)
-            {
-                ZoomIn();
-            }
             //              적위치 - 카메라위치를 빼면 현재 내 위치에서 적위치의 방향을 나타낸다.
             Vector3 dir = m_Targets[index].transform.position - m_Cam.transform.position;
 
             //Quaternion.Lerp함수를 사용하면 부드럽게 회전을 한다 그리고 Quaternion.LookRotation(dir)은 dir방행에 따른 쿼터니언 축회전을 하게 해준다
-            m_Cam.transform.rotation = Quaternion.Lerp(m_Cam.transform.rotation, Quaternion.LookRotation(dir), Time.deltaTime * 5f);
-        }
+            m_Cam.transform.rotation = Quaternion.Lerp(m_Cam.transform.rotation, Quaternion.LookRotation(dir), Time.deltaTime * 10f);
+        
+            ZoomIn();
     }
 
     private void PivotRotate()
     {
         //Quaternion.Lerp함수를 사용하면 부드럽게 회전을 한다 그리고 Quaternion.LookRotation(dir)은 dir방행에 따른 쿼터니언 축회전을 하게 해준다
-        m_Cam.transform.rotation = Quaternion.Lerp(m_Cam.transform.rotation, player.transform.rotation, Time.deltaTime * 5f);
+        m_Cam.transform.rotation = Quaternion.Lerp(m_Cam.transform.rotation, m_PlayerInfo.transform.rotation, Time.deltaTime * 10f);
         ZoomOut();
     }
 
@@ -146,25 +163,24 @@ public class CameraCtrl : MonoBehaviour
         if(target != null)
 		{
             m_Targets.Add(target);
-            m_EnemyMovemrnts.Add(m_Targets[index].GetComponent<EnemyMovement>());
         }
         else
 		{
             Debug.Log("타겟이 없어요...");
 		}
 	}
-
-    public void EnemyHit(bool isHit)
+    private void DestroyTarget()
 	{
-        if(isHit)
+       if( m_Targets[index].tag == "Help")
 		{
-            m_Targets[index].SetActive(false);
-            m_EnemyMovemrnts[index].Die();
-            //index++;
-            m_Targets.RemoveAt(index);
-            dist = Vector3.Distance(m_Cam.transform.position, m_Targets[index].transform.position);
-            targetFocalLength = dist * 4f;
-		}
-	}
+            m_Targets[index].tag = "Dead";
+            //Destroy(m_Targets[index]);
+            m_Targets.Remove(m_Targets[index]);
+            timer = 0;
+            //Destroy(m_Targets[index]);
+        }
+
+    }
+  
 
 }

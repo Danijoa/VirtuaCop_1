@@ -11,7 +11,7 @@ public class EnemyState : MonoBehaviour
 
     private void Awake()
     {
-        state = 0;// Random.Range(0, 2); // 0~1
+        state = 1; // 0~1
     }
 
     // Start is called before the first frame update
@@ -30,7 +30,7 @@ public class EnemyState : MonoBehaviour
             enemyAnimator.SetBool("Shoot", shoot);
         }    
 
-        if (Input.GetKeyDown("d"))
+        if (Input.GetKeyDown("d") || isDie == true)
         {
             isDie = true;
             enemyAnimator.SetBool("Die", isDie);

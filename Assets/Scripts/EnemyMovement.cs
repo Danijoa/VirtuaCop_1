@@ -17,13 +17,17 @@ public class EnemyMovement : MonoBehaviour
     // 카메라, 플레이어, 총 위치 받아오기
     Transform playerPos;
     Transform cameraPos;
-    Transform gunPos;
+    public Transform gunPos;
+
+
 
     // 카메라 제어
     private CameraCtrl cameraCtrl;
     
 	// 사용할 총
     public GameObject gun;
+
+    public ItemDrop m_ItemDrop;
 
     //적 상태
     public EnemyState enemyState;
@@ -33,10 +37,16 @@ public class EnemyMovement : MonoBehaviour
     float bodyguardSpeed;
     Vector3 targetPos;
 
+    bool isItemDrop = false;
+
     private void Awake()
     {
         cameraPos = GameObject.Find("Camera").GetComponent<Transform>();
+        
         enemyState = GetComponent<EnemyState>();
+
+        m_ItemDrop = GetComponent<ItemDrop>();
+
         state = State.Move;
     }
 
@@ -59,12 +69,6 @@ public class EnemyMovement : MonoBehaviour
 
             targetPos = new Vector3(xE, playerPos.position.y, zE);
         }
-
-        if (enemyState.state == 0)
-        {
-            gunPos = GameObject.Find("Gun").GetComponent<Transform>();
-            gunPos.position = new Vector3(gunPos.position.x, gunPos.position.y - 0.45f, gunPos.position.z);
-        }
     }
 
     private void Start()
@@ -82,6 +86,12 @@ public class EnemyMovement : MonoBehaviour
         if (enemyState.isDie == true)
         {
             Die();
+
+            if(isItemDrop == false)
+            {
+                m_ItemDrop.Drop(this.transform);
+                isItemDrop = true;  
+            }
         }
 
     }
@@ -93,11 +103,17 @@ public class EnemyMovement : MonoBehaviour
             float checkDist = Vector3.Distance(targetPos, transform.position);
             if (checkDist <= 1.5f)
             {
+
                 // 배틀 상태로 변경 후
                 state = State.Battle;
                 enemyState.shoot = true;
                 // 카메라한테 자신을 target에 넣어주기
-                cameraCtrl.AddTarget(gameObject);
+                if(state == State.Battle)
+				{
+                    cameraCtrl.AddTarget(gameObject);
+                    //cameraCtrl.m_EnemyMovemrnts.Add(gameObject.GetComponent<EnemyMovement>());
+                }
+
                 break;
             }
 
@@ -119,7 +135,7 @@ public class EnemyMovement : MonoBehaviour
             // 한번 발사하고
             gun.GetComponent<EnemyGun>().Fire();
 
-            // 플레이어 생명 줄이고
+       
 
             // 잠깐 멈추자
             yield return new WaitForSeconds(0.5f);
@@ -137,12 +153,26 @@ public class EnemyMovement : MonoBehaviour
 
         // 이동
         transform.position += moveDir * bodyguardSpeed * Time.deltaTime;
+
+
     }
 
     public void Die()
 	{
+       
+
         enemyState.shoot = false;
-        gameObject.SetActive(false);
         state = State.Die;
+        enemyState.isDie = true;
+       
+        //cameraCtrl.m_Targets.Remove(gameObject);
+        //gameObject.SetActive(false);
+        StartCoroutine(MakeSetFalse());
+    }
+
+    private IEnumerator MakeSetFalse()
+    {
+        yield return new WaitForSeconds(10f);
+        gameObject.SetActive(false);        
     }
 }
